@@ -2,7 +2,7 @@ from django.template import Context, loader
 from django.conf import settings
 from django import http
 
-def 500_with_media(request, template_name='500.html'):
+def handler_500_with_media(request, template_name='500.html'):
     """
     500 error handler allowing access to MEDIA_URL.
 
