@@ -61,27 +61,28 @@ class UpdateGetNode(template.Node):
                     if actual_val is None or actual_val == []:
                         if GET.has_key(actual_attr):
                             del GET[actual_attr]
-                    elif isinstance(actual_val, basestring):
-                        GET[actual_attr] = actual_val
                     elif hasattr(actual_val, '__iter__'):
                         GET.setlist(actual_attr, actual_val)
+                    else:
+                        GET[actual_attr] = unicode(actual_val)
                 elif op == "+=":
-                    if isinstance(actual_val, basestring):
-                        GET.appendlist(actual_attr, actual_val)
-                    elif hasattr(actual_val, '__iter__'):
+                    if hasattr(actual_val, '__iter__'):
                         GET.setlist(actual_attr, GET.getlist(actual_attr) + list(actual_val))
+                    else:
+                        GET.appendlist(actual_attr, unicode(actual_val))
                 elif op == "-=":
                     li = GET.getlist(actual_attr)
-                    if isinstance(actual_val, basestring):
-                        if actual_val in li:
-                            li.remove(actual_val)
-                        GET.setlist(actual_attr, li)
-                    elif hasattr(actual_val, '__iter__'):
+                    if hasattr(actual_val, '__iter__'):
                         for v in list(actual_val):
                             if v in li:
                                 li.remove(v)
                         GET.setlist(actual_attr, li)
-                            
+                    else:
+                        actual_val = unicode(actual_val)
+                        if actual_val in li:
+                            li.remove(actual_val)
+                        GET.setlist(actual_attr, li)
+
         return fix_ampersands(GET.urlencode())
 
 def do_update_GET(parser, token):
