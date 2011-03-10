@@ -20,6 +20,7 @@ If a attribute is set to None or an empty list, the GET parameter is removed.
 If an attribute's value is an empty string, or [""], the value remains, but has a "" value.
 If you try to =- a value from a list that doesn't contain that value, nothing happens.
 If you try to =- a value from a list where the value appears more than once, only the first value is removed.
+If you try to += None, the value is cleared.
 """
 from django import template
 from django.utils.http import urlquote
@@ -66,7 +67,10 @@ class UpdateGetNode(template.Node):
                     else:
                         GET[actual_attr] = unicode(actual_val)
                 elif op == "+=":
-                    if hasattr(actual_val, '__iter__'):
+                    if actual_val is None or actual_val == []:
+                        if GET.has_key(actual_attr):
+                            del GET[actual_attr]
+                    elif hasattr(actual_val, '__iter__'):
                         GET.setlist(actual_attr, GET.getlist(actual_attr) + list(actual_val))
                     else:
                         GET.appendlist(actual_attr, unicode(actual_val))
