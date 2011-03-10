@@ -37,7 +37,7 @@ def chunks(l, n):
 
 class UpdateGetNode(template.Node):
     def __init__(self, triples=[]):
-        self.triples = [template.Variable(attr), op, template.Variable(val) for attr, op, val in triples]
+        self.triples = [(template.Variable(attr), op, template.Variable(val)) for attr, op, val in triples]
 
     def render(self, context):
         try:
@@ -47,12 +47,20 @@ class UpdateGetNode(template.Node):
 
         for attr, op, val in self.triples:
             actual_attr = attr.resolve(context)
-            actual_val = val.resolve(context)
+            
+            try:
+                actual_val = val.resolve(context)
+            except:
+                if val.var == "None":
+                    actual_val = None
+                else:
+                    actual_val = val.var
             
             if actual_attr:
                 if op == "=":
                     if actual_val is None or actual_val == []:
-                        del GET[actual_attr]
+                        if GET.has_key(actual_attr):
+                            del GET[actual_attr]
                     elif isinstance(actual_val, basestring):
                         GET[actual_attr] = actual_val
                     elif hasattr(actual_val, '__iter__'):
@@ -61,9 +69,9 @@ class UpdateGetNode(template.Node):
                     if isinstance(actual_val, basestring):
                         GET.appendlist(actual_attr, actual_val)
                     elif hasattr(actual_val, '__iter__'):
-                        GET.setlist(actual_attr, GET.getlist(actual_attr, []) + list(actual_val))
+                        GET.setlist(actual_attr, GET.getlist(actual_attr) + list(actual_val))
                 elif op == "-=":
-                    li = GET.getlist(actual_attr, []
+                    li = GET.getlist(actual_attr)
                     if isinstance(actual_val, basestring):
                         if actual_val in li:
                             li.remove(actual_val)
@@ -84,7 +92,7 @@ def do_update_GET(parser, token):
             raise template.TemplateSyntaxError, "%r tag requires arguments in groups of three (op, attr, value)." % token.contents.split()[0]
         ops = set([t[1] for t in triples])
         if not ops <= set(['+=', '-=', '=']):
-            raise template.TemplateSyntaxError, "The only allowed operations are +, - and =" % token.contents.split()[0]
+            raise template.TemplateSyntaxError, "The only allowed operators are '+=', '-=' and '='. You have used %s" % ", ".join(ops)
                     
     except ValueError:
         return UpdateGetNode()
@@ -92,4 +100,4 @@ def do_update_GET(parser, token):
     return UpdateGetNode(triples)
 
         
-register.tag('update_GET', do_update_GET):    
+register.tag('update_GET', do_update_GET)
