@@ -30,7 +30,7 @@ class SplitListNode(Node):
             start = stop
 
     def render(self, context):
-        context[self.new_list] = self.split_seq(context[self.list], int(self.cols))
+        context[self.new_list] = self.split_seq(context.get(self.list, []), int(self.cols))
         return ''
 
 def list_to_columns(parser, token):
