@@ -16,7 +16,8 @@ def handler_500_with_media(request, template_name='500.html'):
     """
     t = loader.get_template(template_name) # You need to create a 500.html template.
     return http.HttpResponseServerError(t.render(Context({
-        'MEDIA_URL': settings.MEDIA_URL
+        'MEDIA_URL': settings.MEDIA_URL,
+        'STATIC_URL': settings.STATIC_URL,
     })))
 
 def relative_view_on_site(request, content_type_id, object_id):
