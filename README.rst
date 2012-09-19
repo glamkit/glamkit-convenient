@@ -1,4 +1,6 @@
-.. caution:: This code is deprecated in favour of django-generic.
+This code is deprecated in favour of django-generic.
+----------------------------------------------------
+
    https://bitbucket.org/cogat/django-generic
 
 This app contains some Django functions, middleware, context processors, etc. of various kinds that will make your life easier.
